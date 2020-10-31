@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * Environemnt dependencies.
+ */
+require('dotenv').config();
+
+/**
  * Module dependencies.
  */
 
