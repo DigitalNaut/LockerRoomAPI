@@ -4,20 +4,23 @@ module.exports = {
     "password": process.env.MARIADB_PASSWORD,
     "database": "lockerroom-api",
     "host": "127.0.0.1",
+    "port": "3306",
     "dialect": "mariadb"
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
+    "username": process.env.MARIADB_USER,
+    "password": process.env.MARIADB_PASSWORD,
+    "database": "lockerroom-api",
     "host": "127.0.0.1",
+    "port": "3306",
     "dialect": "mariadb"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
+    "username": process.env.MARIADB_USER,
+    "password": process.env.MARIADB_PASSWORD,
+    "database": "lockerroom-api",
     "host": "127.0.0.1",
+    "port": "3306",
     "dialect": "mariadb"
   }
 }

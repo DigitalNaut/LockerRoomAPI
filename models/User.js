@@ -1,16 +1,26 @@
 const { DataTypes } = require("sequelize");
 
-const UserModel = (sequelize) => sequelize.define("Users", {
-  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  email: DataTypes.STRING,
-  password: DataTypes.STRING,
-  firstname: DataTypes.STRING,
-  lastname: DataTypes.STRING,
-  DOB: DataTypes.DATEONLY,
-  hireDate: DataTypes.DATEONLY,
-  address: DataTypes.STRING,
-  phone: DataTypes.NUMBER,
-  picture: DataTypes.STRING,
-});
+const UserModel = (sequelize) => {
+  const User = sequelize.define("User", {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+    email: DataTypes.STRING,
+    password: DataTypes.STRING,
+    firstname: DataTypes.STRING,
+    lastname: DataTypes.STRING,
+    DOB: DataTypes.DATEONLY,
+    address: DataTypes.STRING,
+    phone: DataTypes.INTEGER,
+    picture: DataTypes.STRING,
+  });
+
+  return User;
+};
 
 module.exports = UserModel;
