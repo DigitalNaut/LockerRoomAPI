@@ -4,7 +4,7 @@ exports.show_users = function (req, res) {
   return models.User.findAll()
     .then((users) => {
       if (users.length) res.status(200).send(users);
-      else res.status(501).send(["No users found"]);
+      else res.status(501).send({ message: "No users found" });
     })
     .catch((err) => {
       res.status(500).send({ message: "Failed to fetch users." });
@@ -19,15 +19,65 @@ exports.show_user = function (req, res) {
     },
   })
     .then((user) => {
-      res.status(200).send(user);
+      if (user) res.status(200).send(user);
+      else res.status(404).send({ message: "User not found." });
     })
     .catch((err) => {
-      res.status(404).send({ message: "No such user found: " + err.message });
+      res.status(500).send({ code: err.code, message: "Error fetching user." });
+      console.log("An error ocurred fetching a user:", err.message);
     });
 };
 
-  return models.User.build({
 exports.remove_user = function (req, res) {
+  return models.User.findOne({
+    where: {
+      id: parseInt(req.params.id),
+    },
+  })
+    .then((user) => {
+      user
+        .destroy()
+        .then(() => {
+          res.status(200).send({ message: "User removed." });
+        })
+        .catch((err) => {
+          res.status(304).send(user);
+          console.log("Error deleting user:" + err.message);
+        });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: "Error: Could not remove user." });
+      console.log("Error deleting user:" + err.message);
+    });
+};
+
+exports.edit_user = function (req, res) {
+  return models.User.findOne({
+    where: {
+      id: parseInt(req.params.id),
+    },
+  })
+    .then((user) => {
+      if (user)
+        user
+          .update(req.body)
+          .then((user) => {
+            res.status(202).send(user);
+          })
+          .catch((err) => {
+            res.status(304).send(user);
+            console.log("Error updating user:" + err.message);
+          });
+      else res.status(404).send({ message: "User not found." });
+    })
+    .catch((err) => {
+      res.status(500).send({ code: err.code, message: "Error fetching user." });
+      console.log("An error ocurred fetching a user:", err.message);
+    });
+};
+
+exports.new_user = function (req, res) {
+  let user = models.User.build({
     id: req.body.id,
     email: req.body.email,
     password: req.body.password,
@@ -37,22 +87,21 @@ exports.remove_user = function (req, res) {
     address: req.body.address,
     phone: req.body.phone,
     picture: req.body.picture,
-  })
-    .then((user) => {
-      return newUser
-        .save()
-        .then(() => {
-          res.status(201).send(newUser);
-        })
-        .catch((error) => {
-          res
-            .status(420)
-            .send({ message: "Could not save new user to database." });
-          console.log("Error saving user to database:", error.message);
-        });
-    })
-    .catch((err) => {
-      res.status(503).send({ message: "Failed to build new user." });
-      console.log("Error building user:", error.message);
-    });
+  });
+
+  if (user) {
+    console.log("Built a user");
+    return user
+      .save()
+      .then((user) => res.status(201).send(user))
+      .catch((error) => {
+        console.log("Error saving user to database:", error.message);
+        return res
+          .status(420)
+          .send({ message: "Could not save new user to database." });
+      });
+  } else {
+    console.log("Built user is null!");
+    return res.status(503).send({ message: "Failed to build new user." });
+  }
 };

@@ -3,11 +3,13 @@ var router = express.Router();
 
 const user = require('../controllers/users');
 
-/* GET users view */
+/* Welcome view */
 router.get('/', user.show_users);
 
-/* GET users API */
-router.get('/:id', user.show_user);
+/* API */
+// router.get('/:id', user.show_user);
 router.post('/new', user.new_user);
+// router.put('/:id/edit', user.edit_user);
+// router.delete('/:id/remove', user.remove_user);
 
 module.exports = router;
