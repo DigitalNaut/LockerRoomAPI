@@ -1,3 +1,5 @@
+var dotenv = require('dotenv').config();
+
 module.exports = {
   "development": {
     "username": process.env.MARIADB_USER,
