@@ -4,10 +4,9 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable("Lockers", {
       id: {
-        allowNull: false,
         primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: Sequelize.INTEGER,
+        autoIncrement: true
       },
       user_id: {
         allowNull: false,
@@ -20,6 +19,14 @@ module.exports = {
       location: {
         allowNull: false,
         type: Sequelize.STRING,
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
       },
     });
   },
