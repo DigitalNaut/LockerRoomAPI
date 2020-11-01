@@ -1,10 +1,11 @@
 {
   "name": "lockerroom",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "build": "nodemon ./bin/www"
+    "build": "nodemon ./bin/www",
+    "migrate": "sequelize db:migrate"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
