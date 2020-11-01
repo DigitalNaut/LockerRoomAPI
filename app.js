@@ -20,9 +20,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes.api);
 app.use('/api', routes.api);
-app.use('/api/users/?', routes.users);
-app.use('/api/lockers/?', routes.lockers);
-//app.use('/api/messages/?', routes.messages);
+app.use('/api/users', routes.users);
+app.use('/api/lockers', routes.lockers);
+app.use('/api/messages', routes.messages);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
