@@ -13,7 +13,7 @@ const PetitionModel = (sequelize, DataTypes) => {
     user_id: DataTypes.INTEGER,
     type: DataTypes.STRING,
     code: DataTypes.INTEGER,
-    enclosure: DataTypes.JSON,
+    enclosure: DataTypes.STRING,
     result: DataTypes.STRING,
     resultMessage: DataTypes.STRING,
   });

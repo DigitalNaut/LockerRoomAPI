@@ -6,20 +6,21 @@ const UserModel = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
+      allowNull: false,
     },
-    createdAt: { type: DataTypes.DATE, default: Date.now() },
-    updatedAt: { type: DataTypes.DATE, default: Date.now() },
-    email: { type: DataTypes.STRING, default: "-" },
-    password: { type: DataTypes.STRING, default: "-" },
-    firstName: { type: DataTypes.STRING, default: "-" },
-    lastName: { type: DataTypes.STRING, default: "-" },
-    DOB: { type: DataTypes.DATEONLY, default: "-" },
-    address: { type: DataTypes.STRING, default: "-" },
-    phone: { type: DataTypes.STRING, default: "-" },
-    picture: { type: DataTypes.STRING, default: "-" },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
+    email: DataTypes.STRING,
+    password: DataTypes.STRING,
+    firstname: DataTypes.STRING,
+    lastname: DataTypes.STRING,
+    DOB: DataTypes.DATEONLY,
+    address: DataTypes.STRING,
+    phone: DataTypes.INTEGER,
+    picture: DataTypes.STRING,
   });
 
-  return user;
+  return User;
 };
 
 module.exports = UserModel;
