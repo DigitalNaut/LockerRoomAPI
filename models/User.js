@@ -1,7 +1,7 @@
-const { DataTypes } = require("sequelize");
+"use strict";
 
-const UserModel = (sequelize) => {
-  const User = sequelize.define("User", {
+const UserModel = (sequelize, DataTypes) => {
+  let user = sequelize.define("User", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,

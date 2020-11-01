@@ -1,7 +1,7 @@
-const { DataTypes } = require("sequelize");
+'use strict';
 
-const PetitionModel = (sequelize) =>
-  sequelize.define("Petition", {
+const PetitionModel = (sequelize, DataTypes) => {
+  let petition = sequelize.define("Petition", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -18,11 +18,7 @@ const PetitionModel = (sequelize) =>
     resultMessage: DataTypes.STRING,
   });
 
-module.exports = PetitionModel;
+  return petition;
+};
 
-// Type: Type of petition? Ride home, claim locker, event
-// Code: Event identifier
-// Enclosure: Data for the petition.
-//    Ride home - Destination
-//    Claim locker - Locker ID
-//    Giveaway - Guess answer
+module.exports = PetitionModel;

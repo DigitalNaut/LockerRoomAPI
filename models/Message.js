@@ -1,7 +1,7 @@
-const { DataTypes } = require("sequelize");
+'use strict';
 
-const MessageModel = (sequelize) => {
-  const Message = sequelize.define("Message", {
+const MessageModel = (sequelize, DataTypes) => {
+  let message = sequelize.define("Message", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -17,11 +17,11 @@ const MessageModel = (sequelize) => {
     message_footer: { type: DataTypes.STRING, allowNull: true },
   });
 
-  Message.associate = (models) => {
-    Message.belongsTo(models.User, {});
+  message.associate = (models) => {
+    message.belongsTo(models.User, {});
   };
 
-  return Message;
+  return message;
 };
 
 module.exports = MessageModel;

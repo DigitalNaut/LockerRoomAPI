@@ -1,7 +1,7 @@
-const { DataTypes } = require("sequelize");
+'use strict';
 
-const LockerModel = (sequelize) =>
-  sequelize.define("Locker", {
+const LockerModule = (sequelize, DataTypes) => {
+  let locker = sequelize.define("Locker", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -13,4 +13,7 @@ const LockerModel = (sequelize) =>
     location: DataTypes.STRING,
   });
 
-module.exports = LockerModel;
+  return locker;
+};
+
+module.exports = LockerModule;

@@ -1,9 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('Trying to fetch lockers!');
-});
+const lockers = require('../controllers/lockers');
+
+router.get('/', lockers.show_lockers);
 
 module.exports = router;
