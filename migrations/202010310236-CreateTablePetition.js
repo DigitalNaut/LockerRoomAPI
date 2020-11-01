@@ -4,10 +4,9 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable("Petitions", {
       id: {
-        allowNull: false,
         primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: Sequelize.INTEGER,
+        autoIncrement: true
       },
       createdAt: {
         allowNull: false,
@@ -19,7 +18,7 @@ module.exports = {
       },
       user_id: {
         allowNull: false,
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         references: {
           model: "Users",
           key: "id",
@@ -36,7 +35,7 @@ module.exports = {
       },
       enclosure: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.JSON,
       },
       result: {
         allowNull: false,

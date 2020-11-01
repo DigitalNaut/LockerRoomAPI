@@ -4,10 +4,9 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable("Messages", {
       id: {
-        allowNull: false,
         primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: Sequelize.INTEGER,
+        autoIncrement: true
       },
       createdAt: {
         allowNull: false,
@@ -18,7 +17,7 @@ module.exports = {
         type: Sequelize.DATE,
       },
       sender_id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         references: {
           model: 'Users',
           key: 'id'
@@ -26,7 +25,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       recipient_id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         references: {
           model: 'Users',
           key: 'id'

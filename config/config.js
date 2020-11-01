@@ -2,7 +2,7 @@ module.exports = {
   "development": {
     "username": process.env.MARIADB_USER,
     "password": process.env.MARIADB_PASSWORD,
-    "database": "lockerroom-api",
+    "database": "lockerroom_api",
     "host": "127.0.0.1",
     "port": "3306",
     "dialect": "mariadb"
@@ -10,7 +10,7 @@ module.exports = {
   "test": {
     "username": process.env.MARIADB_USER,
     "password": process.env.MARIADB_PASSWORD,
-    "database": "lockerroom-api",
+    "database": "lockerroom_api",
     "host": "127.0.0.1",
     "port": "3306",
     "dialect": "mariadb"
@@ -18,7 +18,7 @@ module.exports = {
   "production": {
     "username": process.env.MARIADB_USER,
     "password": process.env.MARIADB_PASSWORD,
-    "database": "lockerroom-api",
+    "database": "lockerroom_api",
     "host": "127.0.0.1",
     "port": "3306",
     "dialect": "mariadb"
