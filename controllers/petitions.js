@@ -1,6 +1,6 @@
 const models = require('../models');
 
-exports.show_petitions = function(req, res, next) {
+exports.show_petitions = function(req, res) {
   return models.Petition.findAll()
     .then((petitions) => {
       if (petitions.length) res.status(200).send(petitions);

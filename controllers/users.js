@@ -1,6 +1,6 @@
 const models = require("../models");
 
-exports.show_users = function (req, res, next) {
+exports.show_users = function (req, res) {
   return models.User.findAll()
     .then((users) => {
       if (users.length) res.status(200).send(users);
@@ -12,7 +12,7 @@ exports.show_users = function (req, res, next) {
     });
 };
 
-exports.show_user = function (req, res, next) {
+exports.show_user = function (req, res) {
   return models.User.findOne({
     where: {
       id: parseInt(req.params.id),
@@ -26,8 +26,8 @@ exports.show_user = function (req, res, next) {
     });
 };
 
-exports.new_user = function (req, res, next) {
   return models.User.build({
+exports.remove_user = function (req, res) {
     id: req.body.id,
     email: req.body.email,
     password: req.body.password,

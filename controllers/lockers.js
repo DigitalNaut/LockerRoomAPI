@@ -1,6 +1,6 @@
 const models = require("../models");
 
-exports.show_lockers = function (req, res, next) {
+exports.show_lockers = function (req, res) {
   return models.Locker.findAll()
     .then((locker) => {
       if (locker.length) res.status(200).send(locker);

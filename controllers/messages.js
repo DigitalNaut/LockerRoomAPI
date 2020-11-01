@@ -1,6 +1,6 @@
 const models = require('../models');
 
-exports.show_messages = function(req, res, next) {
+exports.show_messages = function(req, res) {
   return models.Message.findAll().then(message => {
     if(message.length)
       res.status(200).send(message);
