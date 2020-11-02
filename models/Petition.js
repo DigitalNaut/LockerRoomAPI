@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const PetitionModel = (sequelize, DataTypes) => {
   let petition = sequelize.define("Petition", {
@@ -8,15 +8,23 @@ const PetitionModel = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-    user_id: DataTypes.INTEGER,
-    type: DataTypes.STRING,
-    code: DataTypes.INTEGER,
-    enclosure: DataTypes.JSON,
-    result: DataTypes.STRING,
-    resultMessage: DataTypes.STRING,
+    createdAt: { type: DataTypes.DATE },
+    updatedAt: { type: DataTypes.DATE },
+    userId: { type: DataTypes.INTEGER },
+    type: { type: DataTypes.STRING },
+    code: { type: DataTypes.INTEGER },
+    enclosure: { type: DataTypes.STRING },
+    result: { type: DataTypes.STRING, defaultValue: "pending" },
+    resultMessage: { type: DataTypes.STRING, allowNull: true },
   });
+
+  petition.associate = function (models) {
+    petition.belongsTo(models.User, {
+      foreignKey: "userId",
+      as: "user",
+      allowNull: false,
+    });
+  };
 
   return petition;
 };

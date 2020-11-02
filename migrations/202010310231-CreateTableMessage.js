@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -6,7 +6,7 @@ module.exports = {
       id: {
         primaryKey: true,
         type: Sequelize.INTEGER,
-        autoIncrement: true
+        autoIncrement: true,
       },
       createdAt: {
         allowNull: false,
@@ -16,31 +16,31 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      sender_id: {
+      senderId: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Users',
-          key: 'id'
+          model: "Users",
+          key: "id",
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE",
       },
-      recipient_id: {
+      recipientId: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Users',
-          key: 'id'
+          model: "Users",
+          key: "id",
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE",
       },
-      message_header: {
+      subject: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      message_body: {
+      body: {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      message_footer: {
+      footer: {
         allowNull: true,
         type: Sequelize.STRING,
       },

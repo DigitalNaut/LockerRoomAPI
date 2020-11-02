@@ -23,6 +23,7 @@ app.use('/api', routes.api);
 app.use('/api/users', routes.users);
 app.use('/api/lockers', routes.lockers);
 app.use('/api/messages', routes.messages);
+app.use('/api/petitions', routes.petitions);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -32,7 +33,7 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
-  res.locals.message = err.message;
+  res.locals.message = err;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page

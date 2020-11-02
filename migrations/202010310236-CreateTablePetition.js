@@ -16,7 +16,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      user_id: {
+      userId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
@@ -35,14 +35,14 @@ module.exports = {
       },
       enclosure: {
         allowNull: false,
-        type: Sequelize.JSON,
+        type: Sequelize.STRING,
       },
       result: {
         allowNull: false,
         type: Sequelize.STRING,
       },
       resultMessage: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
     });

@@ -8,7 +8,7 @@ const LockerModule = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    user_id: DataTypes.INTEGER,
+    userId: DataTypes.INTEGER,
     alias: DataTypes.STRING,
     location: DataTypes.STRING,
   });

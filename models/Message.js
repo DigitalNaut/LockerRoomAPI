@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const MessageModel = (sequelize, DataTypes) => {
   let message = sequelize.define("Message", {
@@ -10,15 +10,24 @@ const MessageModel = (sequelize, DataTypes) => {
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
-    sender_id: DataTypes.INTEGER,
-    recipient_id: DataTypes.INTEGER,
-    message_header: DataTypes.STRING,
-    message_body: DataTypes.STRING,
-    message_footer: { type: DataTypes.STRING, allowNull: true },
+    senderId: DataTypes.INTEGER,
+    recipientId: DataTypes.INTEGER,
+    subject: {type: DataTypes.STRING, defaultValue: "No subject"},
+    body: {type: DataTypes.STRING, defaultValue: "No message body"},
+    footer: { type: DataTypes.STRING, allowNull: true },
   });
 
-  message.associate = (models) => {
-    message.belongsTo(models.User, {});
+  message.associate = function (models) {
+    message.belongsTo(models.User, {
+      foreignKey: "senderId",
+      as: "sender",
+      allowNull: false,
+    });
+    message.belongsTo(models.User, {
+      foreignKey: "recipientId",
+      as: "recipient",
+      allowNull: false,
+    });
   };
 
   return message;
