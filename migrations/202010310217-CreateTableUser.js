@@ -16,6 +16,18 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      username: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      authToken: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
+      role: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       email: {
         allowNull: false,
         type: Sequelize.STRING,
@@ -25,27 +37,27 @@ module.exports = {
         type: Sequelize.STRING,
       },
       firstName: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       lastName: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       DOB: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DATEONLY,
       },
       address: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       phone: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       picture: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
     });

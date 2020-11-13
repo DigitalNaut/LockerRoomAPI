@@ -1,12 +1,14 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
-const messages = require('../controllers/messages');
+const messages = require("../controllers/messages");
+const authenticate = require("../controllers/middleware/authentication");
 
-router.get('/', messages.get_all_messages);
-router.get('/user/:id/', messages.get_user_messages);
-router.get('/:id', messages.get_message);
-router.post('/new', messages.new_message);
-router.put('/:id/edit', messages.edit_message);
-router.delete('/:id/remove', messages.delete_message);
+router.get("/", authenticate, messages.get_all_messages);
+router.get("/user/:id/", authenticate, messages.get_user_messages);
+router.get("/:id", authenticate, messages.get_message);
+router.post("/new", authenticate, messages.new_message);
+router.put("/:id/edit", authenticate, messages.edit_message);
+router.delete("/:id/remove", authenticate, messages.delete_message);
+
 module.exports = router;

@@ -45,12 +45,12 @@ exports.new_petition = async function (req, res) {
 exports.get_all_petitions = function (req, res) {
   return models.Petition.findAll()
     .then((petitions) => {
-      if (petitions.length) res.status(200).send(petitions);
-      else res.status(501).send({ message: "No petitions found" });
+      if (petitions.length) return res.status(200).send(petitions);
+      else return res.status(501).send({ message: "No petitions found" });
     })
     .catch((err) => {
-      res.status(500).send({ message: "Failed to fetch petitions." });
       console.log("Error fetching petitions:", err);
+      return res.status(500).send({ message: "Failed to fetch petitions." });
     });
 };
 
@@ -61,12 +61,12 @@ exports.get_petition = function (req, res) {
     },
   })
     .then((petition) => {
-      if (petition) res.status(200).send(petition);
-      else res.status(404).send({ message: "Petition not found" });
+      if (petition) return res.status(200).send(petition);
+      else return res.status(404).send({ message: "Petition not found" });
     })
     .catch((err) => {
-      res.status(500).send({ message: "Error fetching petition" });
       console.log("Error fetching petition: " + err);
+      return res.status(500).send({ message: "Error fetching petition" });
     });
 };
 
@@ -83,17 +83,17 @@ exports.edit_petition = function (req, res) {
         petition
           .update(req.body)
           .then((petition) => {
-            res.status(202).send(petition);
+            return res.status(202).send(petition);
           })
           .catch((err) => {
-            res.status(304).send(petition);
             console.log("Error updating petition:" + err);
+            return res.status(304).send(petition);
           });
-      else res.status(404).send({ message: "petition not found." });
+      else return res.status(404).send({ message: "petition not found." });
     })
     .catch((err) => {
-      res.status(500).send({ code: err.code, message: "Error fetching petition." });
       console.log("An error ocurred fetching a petition:", err);
+      return res.status(500).send({ code: err.code, message: "Error fetching petition." });
     });
 };
 
@@ -109,15 +109,15 @@ exports.delete_petition = function (req, res) {
       petition
         .destroy()
         .then(() => {
-          res.status(200).send({ message: "Petition removed." });
+          return res.status(200).send({ message: "Petition removed." });
         })
         .catch((err) => {
-          res.status(304).send(petition);
           console.log("Error deleting petition:" + err);
+          return res.status(304).send(petition);
         });
     })
     .catch((err) => {
-      res.status(500).send({ message: "Error: Could not remove petition." });
       console.log("Error deleting petition:" + err);
+      return res.status(500).send({ message: "Error: Could not remove petition." });
     });
 };
