@@ -7,10 +7,17 @@ const { users } = require("../users");
 const authenticate = async (req, res, next) => {
   const { token } = req.headers;
 
-  users.get_user_by_token(
+  await users.get_user_by_token(
     token,
     (user) => next(),
-    (err) => res.status(403).json({ message: "Forbidden" })
+    (error) =>
+      res.status(403).json({
+        message: `${
+          error
+            ? "Authentication Error: " + error.message
+            : "Forbidden: Invalid credentials"
+        }`,
+      })
   );
 
   return null;

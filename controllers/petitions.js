@@ -25,99 +25,82 @@ exports.new_petition = async function (req, res) {
   });
 
   if (petition) {
-    return petition
-      .save()
-      .then((petition) => res.status(201).send(petition))
-      .catch((error) => {
-        console.log("Error saving petition to database:", error.message);
-        return res
-          .status(420)
-          .send({ message: "Could not save new petition to database." });
-      });
+    await petition.save();
+    return res.status(201).send(petition);
   } else {
-    console.log("Built petition is null!");
-    return res.status(503).send({ message: "Failed to build new petition." });
+    console.log("Error saving petition to database:", error.message);
+    return res
+      .status(420)
+      .send({ message: "Could not save new petition to database." });
   }
 };
 
 // READ
 
-exports.get_all_petitions = function (req, res) {
-  return models.Petition.findAll()
-    .then((petitions) => {
-      if (petitions.length) return res.status(200).send(petitions);
-      else return res.status(501).send({ message: "No petitions found" });
-    })
-    .catch((err) => {
-      console.log("Error fetching petitions:", err);
-      return res.status(500).send({ message: "Failed to fetch petitions." });
-    });
+exports.get_all_petitions = async function (req, res) {
+  try {
+    let petititons = await models.Petition.findAll();
+    if (petitions.length) return res.status(200).send(petitions);
+    else return res.status(501).send({ message: "No petitions found" });
+  } catch (error) {
+    console.log("Error fetching petitions:", error);
+    return res.status(500).send({ message: "Failed to fetch petitions." });
+  }
 };
 
-exports.get_petition = function (req, res) {
-  return models.Petition.findOne({
-    where: {
-      id: parseInt(req.params.id),
-    },
-  })
-    .then((petition) => {
-      if (petition) return res.status(200).send(petition);
-      else return res.status(404).send({ message: "Petition not found" });
-    })
-    .catch((err) => {
-      console.log("Error fetching petition: " + err);
-      return res.status(500).send({ message: "Error fetching petition" });
+exports.get_petition = async function (req, res) {
+  try {
+    let petition = awaitmodels.Petition.findOne({
+      where: {
+        id: parseInt(req.params.id),
+      },
     });
+
+    if (petition) return res.status(200).send(petition);
+    else return res.status(404).send({ message: "Petition not found" });
+  } catch (error) {
+    console.log("Error fetching petition: " + error);
+    return res.status(500).send({ message: "Error fetching petition" });
+  }
 };
 
 // UPDATE
 
-exports.edit_petition = function (req, res) {
-  return models.Petition.findOne({
-    where: {
-      id: parseInt(req.params.id),
-    },
-  })
-    .then((petition) => {
-      if (petition)
-        petition
-          .update(req.body)
-          .then((petition) => {
-            return res.status(202).send(petition);
-          })
-          .catch((err) => {
-            console.log("Error updating petition:" + err);
-            return res.status(304).send(petition);
-          });
-      else return res.status(404).send({ message: "petition not found." });
-    })
-    .catch((err) => {
-      console.log("An error ocurred fetching a petition:", err);
-      return res.status(500).send({ code: err.code, message: "Error fetching petition." });
+exports.edit_petition = async function (req, res) {
+  try {
+    let petition = await models.Petition.findOne({
+      where: {
+        id: parseInt(req.params.id),
+      },
     });
+
+    if (petition) {
+      await petition.update(req.body);
+      return res.status(202).send(petition);
+    } else return res.status(404).send({ message: "petition not found." });
+  } catch (error) {
+    console.log("An error ocurred fetching a petition:", error);
+    return res
+      .status(500)
+      .send({ code: error.code, message: "Error fetching petition." });
+  }
 };
 
 // DELETE
 
-exports.delete_petition = function (req, res) {
-  return models.Petition.findOne({
-    where: {
-      id: parseInt(req.params.id),
-    },
-  })
-    .then((petition) => {
-      petition
-        .destroy()
-        .then(() => {
-          return res.status(200).send({ message: "Petition removed." });
-        })
-        .catch((err) => {
-          console.log("Error deleting petition:" + err);
-          return res.status(304).send(petition);
-        });
-    })
-    .catch((err) => {
-      console.log("Error deleting petition:" + err);
-      return res.status(500).send({ message: "Error: Could not remove petition." });
+exports.delete_petition = async function (req, res) {
+  try {
+    let petition = await models.Petition.findOne({
+      where: {
+        id: parseInt(req.params.id),
+      },
     });
+    await petition.destroy();
+    return res.status(200).send({ message: "Petition removed." });
+  } catch (error) {
+    console.log("Error deleting petition:" + error);
+    return res
+      .status(500)
+      .send({ message: "Error: Could not remove petition." });
+  }
 };

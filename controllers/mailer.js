@@ -5,7 +5,7 @@ var dotenv = require('dotenv').config();
 const nodemailer = require("nodemailer");
 
 // async..await is not allowed in global scope, must use a wrapper
-exports.send = async (from, to, subject, text, html) => {
+exports.send = async (from, to, subject, text, html) => {  
   console.log("Emailer", process.env.MAILER_USERNAME)
 
   // Generate test SMTP service account from ethereal.email
