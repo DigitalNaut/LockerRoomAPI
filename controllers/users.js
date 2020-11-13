@@ -90,7 +90,8 @@ exports.get_user_by_token = async function (token, callback, failback) {
     if (user) return callback(user);
     else return failback(user);
   } catch (error) {
-    failback(error);
+    console.log("Error getting User by Token:", error);
+    throw error;
   }
 };
 

@@ -1,3 +1,4 @@
+require("dotenv").config();
 var dotenv = require("dotenv").config();
 
 const { response } = require("express");
@@ -9,14 +10,16 @@ const authenticate = async (req, res, next) => {
 
   await users.get_user_by_token(
     token,
-    (user) => next(),
+    (user) => {
+      if (jwt.verify(user.token, process.env.JWT_SECRETKEY)) return next();
+      else
+        return res
+          .status(403)
+          .json({ message: "Forbidden: Invalid credentials" });
+    },
     (error) =>
       res.status(403).json({
-        message: `${
-          error
-            ? "Authentication Error: " + error.message
-            : "Forbidden: Invalid credentials"
-        }`,
+        message: `Authentication Error: ${error ? error : "User not logged in."}`,
       })
   );
 
