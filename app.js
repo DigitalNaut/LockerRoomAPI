@@ -7,6 +7,9 @@ var helmet = require('helmet');
 
 var routes = require('./routes/');
 
+// var mailer = require('./controllers/mailer');
+// mailer.main();
+
 var app = express();
 
 // view engine setup
