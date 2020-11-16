@@ -8,16 +8,19 @@ module.exports = {
         type: Sequelize.INTEGER,
         autoIncrement: true
       },
-      userId: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
+      user: {
+        type: Sequelize.STRING,
+        references: {
+          model: "Users",
+          key: "username",
+        },
       },
       alias: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       location: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       createdAt: {

@@ -1,94 +1,148 @@
 const models = require("../models");
+const auth = require("./auth.js");
+
+var filters = {
+  admin: ["updatedAt", "createdAt"],
+  user: [
+    "password",
+    "authToken",
+    "email",
+    "firstN0ame",
+    "lastName",
+    "DOB",
+    "address",
+    "phone",
+  ],
+  public: ["role", "username"],
+};
+filters.user = filters.user.concat(filters.public);
+filters.admin = filters.admin.concat(filters.user);
 
 // CREATE
-exports.new_user = async function (req, res) {
+exports.new_user = async function (req) {
   try {
-    let user = await models.User.build({
-      username: req.body.username,
+    let {
+      body: {
+        username,
+        email,
+        password,
+        firstName,
+        lastName,
+        DOB,
+        address,
+        phone,
+        picture,
+      },
+    } = req;
+
+    let = user = await models.User.build({
+      username: username,
       role: "user",
-      email: req.body.email,
-      password: req.body.password,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      DOB: req.body.DOB,
-      address: req.body.address,
-      phone: req.body.phone,
-      picture: req.body.picture,
+      email: email,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+      DOB: DOB,
+      address: address,
+      phone: phone,
+      picture: picture,
     });
 
-    if (user) {
-      await user.save();
-      return (res && res.status(201).send(user)) || user;
-    } else {
-      console.log("Built user is null!");
-      return (
-        (res &&
-          res.status(503).send({ message: "Failed to build new user." })) ||
-        null
-      );
-    }
+    await user.save();
+
+    return user;
   } catch (error) {
-    console.log("Error saving user to database:", error.message);
-    return (
-      (res &&
-        res
-          .status(420)
-          .send({ message: "Could not save new user to database." })) ||
-      null
-    );
+    console.log("Error saving user to database:" + error);
+    return null;
   }
 };
 
 // READ
 
-exports.get_all_users = async function (req, res) {
+exports.show_all_users = async function (req, res) {
   try {
-    let users = await models.User.findAll();
+    let role = req.headers.role;
 
-    if (users.length) return (res && res.status(200).send(users)) || users;
-    else return res.status(501).send({ message: "No users found" });
+    let users = await getAllUsers();
+
+    if (!users.length)
+      return res.status(501).send({ message: "No users found" });
+
+    users = users.map((user) => {
+      user = user.purge(
+        user.username === req.headers.username ? filters[role] : filters.public
+      );
+      user.loggedIn = user.authToken ? true : false;
+      return user;
+    });
+
+    return res.status(200).send(users);
   } catch (error) {
     console.log("Error fetching users:", error);
-    return (
-      (res && res.status(500).send({ message: "Failed to fetch users." })) ||
-      null
-    );
+    return res
+      .status(500)
+      .json({ message: "Internal Error: Failed to fetch users." });
   }
 };
 
-exports.get_user = async function (req, res) {
+const getAllUsers = async function () {
+  let users = await models.User.findAll();
+
+  users.forEach((user) => {
+    user.loggedIn = true;
+  });
+
+  return users;
+};
+
+exports.show_user = async function (req, res) {
+  try {
+    let username = req.params.username;
+
+    let role = req.headers.role;
+
+    let user = await exports.get_user(username);
+
+    if (!user)
+      return res.status(404).send({ message: "User not found: " + user });
+
+      console.log("FILETERS:", req.headers);
+
+    user = user.purge(filters[role] || filters.public);
+
+    return res && res.status(200).send(user);
+  } catch (error) {
+    console.log("Error ocurred fetching a user:", error);
+    return res
+      .status(500)
+      .send({ code: error.code, message: "Error fetching user" });
+  }
+};
+
+exports.get_user = async function (username) {
   try {
     let user = await models.User.findOne({
       where: {
-        username: req.params.username || req.body.username,
+        username: username,
       },
     });
 
-    if (user) return (res && res.status(200).send(user)) || user;
-    else
-      return (
-        (res && res.status(404).send({ message: "User not found" })) || null
-      );
+    return user;
   } catch (error) {
-    console.log("Error ocurred fetching a user:", error);
-    return (
-      (res &&
-        res
-          .status(500)
-          .send({ code: error.code, message: "Error fetching user" })) ||
-      null
-    );
+    console.log("Error getting a user: " + error);
+    return null;
   }
 };
 
-exports.get_user_by_token = async function (token, callback, failback) {
+exports.get_user_from_token = async function (token, callback, failback) {
   try {
     let user = await models.User.findOne({
       where: { authToken: token },
     });
 
-    if (user) return callback(user);
-    else return failback(user);
+    if (!user) return failback(user);
+
+    return callback(user);
   } catch (error) {
     console.log("Error getting User by Token:", error);
     throw error;
@@ -103,31 +157,74 @@ exports.set_auth_token = async function (username, token) {
       where: { username: username },
     });
 
-    await user.update({ authToken: token });
+    return await user.update({ authToken: token });
   } catch (error) {
-    console.log("Error: User can't accept token:" + error);
+    console.log("Error: Cant set token for user: " + error);
     return error;
+  }
+};
+
+exports.reset_password = async function (req, res) {
+  try {
+    let username = req.headers.username;
+
+    if (!req.body.newPassword1)
+      res.status(403).json({
+        message: "Bad request: The new password provided is empty.",
+      });
+
+    if (req.body.newPassword1 !== req.body.newPassword2)
+      res.status(403).json({
+        message: "Bad request: The verification password does not match.",
+      });
+
+    let user = await models.User.findOne({
+      where: { username: username },
+    });
+
+    let newProperties = { password: req.body.newPassword1 };
+
+    await user.update(newProperties);
+
+    user = user.purge(filters[role] || filters.public);
+
+    return res && res.status(202).send(user);
+  } catch (error) {
+    console.log("Error updating user:" + error);
+    return (
+      res &&
+      res
+        .status(304)
+        .json({ message: "Internal Error: Could not update user: " + error })
+    );
   }
 };
 
 exports.modify_user = async function (req, res) {
   try {
+    let username = req.headers.username;
+
     let user = await models.User.findOne({
-      where: {
-        authToken: req.headers.token,
-      },
+      where: { username: username },
     });
 
-    if (user) {
-      await user.update(req.body);
-      return (res && res.status(202).send(user)) || user;
-    } else
-      return (
-        (res && res.status(404).send({ message: "User not found." })) || null
-      );
+    let newProperties = {};
+    if (req.body.email) newProperties.email = req.body.email;
+    if (req.body.firstName) newProperties.firstName = req.body.firstName;
+    if (req.body.DOB) newProperties.DOB = req.body.DOB;
+    if (req.body.address) newProperties.address = req.body.address;
+    if (req.body.phone) newProperties.phone = req.body.phone;
+
+    await user.update(newProperties);
+
+    user = user.purge(filters[role] || filters.public);
+
+    return res && res.status(202).send(user);
   } catch (error) {
     console.log("Error updating user:" + error);
-    return (res && res.status(304).send(user)) || user;
+    return (
+      res && res.status(500).send("Internal Error: Could not update user.")
+    );
   }
 };
 
@@ -135,29 +232,33 @@ exports.modify_user = async function (req, res) {
 
 exports.delete_user = async function (req, res) {
   try {
+    let username = req.headers.username;
+
     let user = await models.User.findOne({
       where: {
-        authToken: req.headers.token,
+        username: username,
       },
     });
+
     if (!user)
-      return (
-        (res && res.status(400).send({ message: "User not found." })) || user
-      );
+      return res
+        .status(400)
+        .send({ message: "No change: User does not exist." });
 
     await user.destroy();
 
     return (
-      (res && res.status(200).send({ message: "User removed: " + user.username })) ||
+      (res &&
+        res.status(200).send({ message: "User removed: " + user.username })) ||
       null
     );
   } catch (error) {
-    console.log("Error deleting user:" + error);
+    console.log(`Error: Could not remove user: ${error}.`);
     return (
       (res &&
         res
           .status(500)
-          .send({ message: `Error: Could not remove user: ${error}.` })) ||
+          .send({ message: "Internal Error: Removing user failed." })) ||
       error
     );
   }

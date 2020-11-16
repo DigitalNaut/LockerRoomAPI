@@ -1,5 +1,7 @@
 "use strict";
 
+const purger = require("../controllers/purger");
+
 const MessageModel = (sequelize, DataTypes) => {
   let message = sequelize.define("Message", {
     id: {
@@ -10,8 +12,8 @@ const MessageModel = (sequelize, DataTypes) => {
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
-    senderId: DataTypes.INTEGER,
-    recipientId: DataTypes.INTEGER,
+    sender: DataTypes.STRING,
+    recipient: DataTypes.STRING,
     subject: {type: DataTypes.STRING, defaultValue: "No subject"},
     body: {type: DataTypes.STRING, defaultValue: "No message body"},
     footer: { type: DataTypes.STRING, allowNull: true },
@@ -19,16 +21,16 @@ const MessageModel = (sequelize, DataTypes) => {
 
   message.associate = function (models) {
     message.belongsTo(models.User, {
-      foreignKey: "senderId",
-      as: "sender",
+      foreignKey: "sender",
       allowNull: false,
     });
     message.belongsTo(models.User, {
-      foreignKey: "recipientId",
-      as: "recipient",
+      foreignKey: "recipient",
       allowNull: false,
     });
   };
+
+  message.prototype.purge = purger.purge;
 
   return message;
 };

@@ -1,5 +1,3 @@
-var dotenv = require("dotenv").config();
-
 const jwt = require("jsonwebtoken");
 const users = require("./users.js");
 
@@ -14,7 +12,7 @@ exports.register = async function (req, res) {
   try {
     let user = await users.get_user(req);
     if (user)
-      return res.status(400).json({ message: "Username not available." });
+      return res.status(400).json({ message: "Error creating user: User data not available." });
 
     if (!req.body.username.match(usernamePattern))
       return res.status(400).json({
@@ -28,7 +26,7 @@ exports.register = async function (req, res) {
 
     return users.new_user(req).then((newUser) => {
       if (!newUser)
-        return res.status(500).json({ message: "Error registering user." });
+        return res.status(501).json({ message: "Error registering user." });
 
       return res.status(201).send(newUser);
     });
@@ -43,13 +41,33 @@ exports.edit = async function (req, res) {
   try {
     return await users.modify_user(req);
   } catch (error) {
-    //  return res.status(500).json({ message: "Could not update." });
+    return res.status(500).json({ message: "Could not update." });
+  }
+};
+
+exports.verify = async function (req, res) {
+  try {
+    let username = await users.get_user_from_token(
+      req.headers.token,
+      (user) => user.username,
+      () =>
+        res.status(403).send({
+          message:
+            "Operation failed: Couldn't verify the session from the given token.",
+        })
+    );
+    return username;
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal Error: Could not verify session: " + error });
   }
 };
 
 exports.login = async function (req, res) {
   try {
-    let user = await users.get_user(req);
+    let username = req.body.username;
+    let user = await users.get_user(username);
 
     if (!user) {
       return res.status(401).json({ message: "The username is not correct." });
@@ -82,32 +100,28 @@ exports.login = async function (req, res) {
 
 exports.logout = async function (req, res) {
   try {
-    let user = await users.get_user(req);
+    let user = req.headers.username;
 
-    if (!user) return res.status(401).json({ message: "Unknown user" });
-
-    await users.set_auth_token(req.body.username, null);
+    await users.set_auth_token(user, null);
 
     return res.status(200).json({
-      message: "Logged out successfully.",
+      message: "OK: Logged out successfully.",
     });
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error: Could not logout: " + error });
+      .json({ message: "Internal Error: Could not logout: " + error });
   }
 };
 
-exports.remove = function (req, res) {
+exports.remove = async function (req, res) {
   try {
-    if (!users.delete_user(req.params.username))
-      return res
-        .status(400)
-        .json({ message: "Can not remove an invalid username." });
+    let user = req.headers.username;
 
-    let user = users.delete_user(req);
+    await users.delete_user(req);
 
-    if (user) return res.status(200).json({ message: "User account removed." });
+    if (user)
+      return res.status(200).json({ message: "OK: User account removed." });
     else
       return res
         .status(500)

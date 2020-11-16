@@ -16,19 +16,19 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      senderId: {
-        type: Sequelize.INTEGER,
+      sender: {
+        type: Sequelize.STRING,
         references: {
           model: "Users",
-          key: "id",
+          key: "username",
         },
         onDelete: "CASCADE",
       },
-      recipientId: {
-        type: Sequelize.INTEGER,
+      recipient: {
+        type: Sequelize.STRING,
         references: {
           model: "Users",
-          key: "id",
+          key: "username",
         },
         onDelete: "CASCADE",
       },

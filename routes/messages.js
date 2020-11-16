@@ -4,10 +4,11 @@ var router = express.Router();
 const messages = require("../controllers/messages");
 const authenticate = require("../controllers/middleware/authentication");
 
-router.get("/", authenticate, messages.get_all_messages);
-router.get("/user/:id/", authenticate, messages.get_user_messages);
-router.get("/:id", authenticate, messages.get_message);
+router.get("/all", authenticate, messages.get_user_messages);
 router.post("/new", authenticate, messages.new_message);
+router.get("/sent", authenticate, messages.get_sent_messages);
+router.get("/received", authenticate, messages.get_received_messages);
+router.get("/:id", authenticate, messages.get_message);
 router.put("/:id/edit", authenticate, messages.edit_message);
 router.delete("/:id/remove", authenticate, messages.delete_message);
 

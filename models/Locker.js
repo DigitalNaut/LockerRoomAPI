@@ -1,4 +1,6 @@
-'use strict';
+"use strict";
+
+const purger = require("../controllers/purger");
 
 const LockerModule = (sequelize, DataTypes) => {
   let locker = sequelize.define("Locker", {
@@ -8,10 +10,19 @@ const LockerModule = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    userId: DataTypes.INTEGER,
-    alias: DataTypes.STRING,
-    location: DataTypes.STRING,
+    user: { type: DataTypes.STRING, allowNull: true },
+    alias: { type: DataTypes.STRING, allowNull: true },
+    location: { type: DataTypes.STRING, allowNull: true },
   });
+
+  locker.associate = function (models) {
+    locker.belongsTo(models.User, {
+      foreignKey: "user",
+      allowNull: false,
+    });
+  };
+
+  locker.prototype.purge = purger.purge;
 
   return locker;
 };

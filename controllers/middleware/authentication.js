@@ -1,29 +1,55 @@
-require("dotenv").config();
-var dotenv = require("dotenv").config();
-
-const { response } = require("express");
 const jwt = require("jsonwebtoken");
 const { users } = require("../users");
 
 const authenticate = async (req, res, next) => {
-  const { token } = req.headers;
+  try {
+    let {
+      headers: { token, username, role },
+    } = req;
 
-  await users.get_user_by_token(
-    token,
-    (user) => {
-      if (jwt.verify(user.token, process.env.JWT_SECRETKEY)) return next();
-      else
-        return res
-          .status(403)
-          .json({ message: "Forbidden: Invalid credentials" });
-    },
-    (error) =>
-      res.status(403).json({
-        message: `Authentication Error: ${error ? error : "User not logged in."}`,
-      })
-  );
+    username = "";
+    role = "";
 
-  return null;
+    return await users.get_user_from_token(
+      token,
+      async (user) => {
+        if (!user.authToken) {
+          await user.update({ authToken: null });
+          return res.status(403).json({ message: "Not logged in." });
+        }
+
+        jwt.verify(
+          user.authToken,
+          process.env.JWT_SECRETKEY,
+          (error, decoded) => {
+            if (error && isPublic) {
+              console.log("An error ocurred during authentication: " + error);
+              return res
+                .status(400)
+                .json({ message: "Authentication Error: Session expired." });
+            }
+
+            req.headers.username = decoded.userUsername;
+            req.headers.role = decoded.userRole;
+          }
+        );
+
+        return next();
+      },
+      (error) => {
+        return res.status(403).json({
+          message: `Authentication Error: ${
+            error ? error : "Protected: Not logged in."
+          }`,
+        });
+      }
+    );
+  } catch (error) {
+    console.log("Failed to authenticate: ", error);
+    return res
+      .status(500)
+      .send({ message: "Internal Error: Authentication failed." });
+  }
 };
 
 module.exports = authenticate;
