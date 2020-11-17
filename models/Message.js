@@ -10,12 +10,12 @@ const MessageModel = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
+    createdAt: { type: DataTypes.DATE, defaultValue: sequelize.fn("NOW") },
+    updatedAt: { type: DataTypes.DATE, defaultValue: sequelize.fn("NOW") },
     sender: DataTypes.STRING,
     recipient: DataTypes.STRING,
-    subject: {type: DataTypes.STRING, defaultValue: "No subject"},
-    body: {type: DataTypes.STRING, defaultValue: "No message body"},
+    subject: { type: DataTypes.STRING, defaultValue: "No subject" },
+    body: { type: DataTypes.STRING, defaultValue: "No message body" },
     footer: { type: DataTypes.STRING, allowNull: true },
   });
 
