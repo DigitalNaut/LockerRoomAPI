@@ -1,11 +1,9 @@
 "use strict";
 
-var dotenv = require('dotenv').config();
-
 const nodemailer = require("nodemailer");
 
-exports.send = async (from, to, subject, text, html) => {  
-  console.log("Emailer", process.env.MAILER_USERNAME)
+exports.send = async (from, to, subject, text, html) => {
+  console.log("Emailer", process.env.MAILER_USERNAME);
 
   // Generate test SMTP service account from ethereal.email
   // Only needed if you don't have a real mail account for testing
@@ -38,6 +36,5 @@ exports.send = async (from, to, subject, text, html) => {
   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 
-  
   return info.messageId;
 };

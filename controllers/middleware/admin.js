@@ -13,7 +13,7 @@ const admin = async (req, res, next) => {
 
     return next();
   } catch (error) {
-    console.log("Failed to authenticate: ", error);
+    console.log("Failed to authenticate admin: ", error);
     return res
       .status(500)
       .send({ message: "Internal Error: Deep authentication failed." });

@@ -1,13 +1,5 @@
 const models = require("../models");
 
-var filters = {
-  admin: ["updatedAt", "createdAt"],
-  user: ["enclosure", "result", "resultMessage"],
-  public: ["id", "sender", "type", "code"],
-};
-filters.user = filters.user.concat(filters.public);
-filters.admin = filters.admin.concat(filters.user);
-
 // CREATE
 
 exports.new_petition = async function (req, res) {
@@ -38,7 +30,7 @@ exports.new_petition = async function (req, res) {
 
     await petition.save();
 
-    petition = petition.purge(filters[role] || filters.public);
+    petition = petition.purge(role, petition.sender === username);
 
     return res.status(201).send(petition);
   } catch (error) {
@@ -65,7 +57,7 @@ exports.get_all_petitions = async function (req, res) {
       return res.status(501).send({ message: "No petitions found." });
 
     petitions = petitions.forEach((petition) =>
-      petition.purge(filters[role] || filters.public)
+      petition.purge(role, petition.sender === username)
     );
 
     return res.status(200).send(petitions);
@@ -84,7 +76,7 @@ exports.get_user_petitions = async function (req, res) {
     petitions = petitions.filter((petition) => petition.sender === username);
 
     petition = petitions.forEach((petition) =>
-      petition.purge(filters[role] || filters.public)
+      petition.purge(role, petition.sender === username)
     );
 
     if (petitions.length) return res.status(200).send(petitions);
@@ -114,13 +106,13 @@ exports.get_petition = async function (req, res) {
     if (!petition)
       return res.status(404).send({ message: "Error: Petition not found." });
 
-    if (petition.sender !== user)
+    if (!(petition === sender, user))
       return res.status(404).send({
         message:
           "Authentication Error: You do not have permissoin to see this petition.",
       });
 
-    petition = petition.purge(filters[role] || filters.public);
+    petition = petition.purge(role, petition.sender === username);
 
     return res.status(200).send(petition);
   } catch (error) {
@@ -161,7 +153,7 @@ exports.edit_petition = async function (req, res) {
 
     await petition.update(newProperties);
 
-    petition = petition.purge(filters[role] || filters.public);
+    petition = petition.purge(role, petition.sender === username);
 
     return res.status(202).send(petition);
   } catch (error) {

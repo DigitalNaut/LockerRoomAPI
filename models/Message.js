@@ -1,6 +1,7 @@
 "use strict";
 
 const purger = require("../controllers/purger");
+const { filters } = require("../config/filters");
 
 const MessageModel = (sequelize, DataTypes) => {
   let message = sequelize.define("Message", {
@@ -10,8 +11,8 @@ const MessageModel = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    createdAt: { type: DataTypes.DATE, defaultValue: sequelize.fn("NOW") },
-    updatedAt: { type: DataTypes.DATE, defaultValue: sequelize.fn("NOW") },
+    createdAt: { type: DataTypes.DATE },
+    updatedAt: { type: DataTypes.DATE },
     sender: DataTypes.STRING,
     recipient: DataTypes.STRING,
     subject: { type: DataTypes.STRING, defaultValue: "No subject" },
@@ -30,7 +31,13 @@ const MessageModel = (sequelize, DataTypes) => {
     });
   };
 
-  message.prototype.purge = purger.purge;
+  message.prototype.purge = function (role, personal = false) {
+    return purger.purge(
+      this.dataValues,
+      (personal ? filters.message[role] : filters.message.public) ||
+        filters.message.public
+    );
+  };
 
   return message;
 };

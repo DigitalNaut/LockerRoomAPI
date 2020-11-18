@@ -1,22 +1,4 @@
 const models = require("../models");
-const auth = require("./auth.js");
-
-var filters = {
-  admin: ["updatedAt", "createdAt"],
-  user: [
-    "password",
-    "authToken",
-    "email",
-    "firstN0ame",
-    "lastName",
-    "DOB",
-    "address",
-    "phone",
-  ],
-  public: ["role", "username"],
-};
-filters.user = filters.user.concat(filters.public);
-filters.admin = filters.admin.concat(filters.user);
 
 // CREATE
 exports.new_user = async function (req) {
@@ -62,6 +44,7 @@ exports.new_user = async function (req) {
 exports.show_all_users = async function (req, res) {
   try {
     let role = req.headers.role;
+    let username = req.headers.username;
 
     let users = await getAllUsers();
 
@@ -69,16 +52,14 @@ exports.show_all_users = async function (req, res) {
       return res.status(501).send({ message: "No users found" });
 
     users = users.map((user) => {
-      user = user.purge(
-        user.username === req.headers.username ? filters[role] : filters.public
-      );
+      user = user.purge(role, user.username === username);
       user.loggedIn = user.authToken ? true : false;
       return user;
     });
 
     return res.status(200).send(users);
   } catch (error) {
-    console.log("Error fetching users:", error);
+    //console.log("Error fetching users:", error);
     return res
       .status(500)
       .json({ message: "Internal Error: Failed to fetch users." });
@@ -106,9 +87,10 @@ exports.show_user = async function (req, res) {
     if (!user)
       return res.status(404).send({ message: "User not found: " + user });
 
-      console.log("FILETERS:", req.headers);
+    console.log("MY username: ", username, "The other: ", user.username);
 
-    user = user.purge(filters[role] || filters.public);
+    user = user.purge(role, user.username === username);
+    user.loggedIn = user.authToken ? true : false;
 
     return res && res.status(200).send(user);
   } catch (error) {
@@ -136,6 +118,8 @@ exports.get_user = async function (username) {
 
 exports.get_user_from_token = async function (token, callback, failback) {
   try {
+    if (!token) throw "Token is invalid: " + token;
+
     let user = await models.User.findOne({
       where: { authToken: token },
     });
@@ -144,7 +128,6 @@ exports.get_user_from_token = async function (token, callback, failback) {
 
     return callback(user);
   } catch (error) {
-    console.log("Error getting User by Token:", error);
     throw error;
   }
 };
@@ -186,7 +169,7 @@ exports.reset_password = async function (req, res) {
 
     await user.update(newProperties);
 
-    user = user.purge(filters[role] || filters.public);
+    user = user.purge(role, user.username === username);
 
     return res && res.status(202).send(user);
   } catch (error) {
@@ -217,7 +200,7 @@ exports.modify_user = async function (req, res) {
 
     await user.update(newProperties);
 
-    user = user.purge(filters[role] || filters.public);
+    user = user.purge(role, user.username === username);
 
     return res && res.status(202).send(user);
   } catch (error) {

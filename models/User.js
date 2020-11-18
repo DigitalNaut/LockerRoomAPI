@@ -2,6 +2,7 @@
 
 const bcrypt = require("bcrypt");
 const purger = require("../controllers/purger");
+const { filters } = require("../config/filters");
 
 const UserModel = (sequelize, DataTypes) => {
   let user = sequelize.define(
@@ -11,8 +12,8 @@ const UserModel = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.STRING,
       },
-      createdAt: { type: DataTypes.DATE, defaultValue: sequelize.fn("NOW") },
-      updatedAt: { type: DataTypes.DATE, defaultValue: sequelize.fn("NOW") },
+      createdAt: { type: DataTypes.DATE },
+      updatedAt: { type: DataTypes.DATE },
       role: { type: DataTypes.STRING, defaultValue: "user" },
       authToken: { type: DataTypes.STRING },
       email: { type: DataTypes.STRING },
@@ -69,7 +70,13 @@ const UserModel = (sequelize, DataTypes) => {
     return bcrypt.compareSync(password, this.password);
   };
 
-  user.prototype.purge = purger.purge;
+  user.prototype.purge = function (role, personal = false) {
+    return purger.purge(
+      this.dataValues,
+      (personal ? filters.user[role] : filters.user.public) ||
+        filters.user.public
+    );
+  };
 
   return user;
 };

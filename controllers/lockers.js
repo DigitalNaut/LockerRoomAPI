@@ -1,13 +1,5 @@
 const models = require("../models");
 
-let filters = {
-  admin: ["updatedAt", "createdAt"],
-  user: [],
-  public: ["id", "location", "user", "alias"],
-};
-filters.user = filters.user.concat(filters.public);
-filters.admin = filters.admin.concat(filters.user);
-
 // CREATE
 
 let create_lockers = async function (number) {
@@ -47,9 +39,7 @@ exports.flush_lockers = async function (req, res) {
     lockers = await models.Locker.findAll();
 
     lockers = lockers.map((locker) => {
-      locker = locker.purge(
-        locker.user === username ? filters[role] : filters.public
-      );
+      locker = locker.purge(role, locker.dataValues.user === username);
       return locker;
     });
 
@@ -73,9 +63,7 @@ exports.list_lockers = async function (req, res) {
       return res.status(501).send({ message: "No lockers found." });
 
     lockers = lockers.map((locker) => {
-      locker = locker.purge(
-        locker.dataValues.user === username ? filters[role] : filters.public
-      );
+      locker = locker.purge(role, locker.dataValues.user === username);
       locker.isOccupied = locker.user ? true : false;
       return locker;
     });
@@ -101,9 +89,7 @@ exports.show_user_lockers = async function (req, res) {
     if (!lockers.length)
       return res.status(501).send({ message: `No lockers found for ${user}.` });
 
-    lockers = lockers.map((locker) =>
-      locker.purge(filters[role] || filters.public)
-    );
+    lockers = lockers.map((locker) => locker.purge(role));
 
     return res.status(200).send(lockers);
   } catch (error) {
@@ -133,9 +119,7 @@ exports.show_locker = async function (req, res) {
     if (!locker)
       return res.status(404).send({ message: "Error: Locker not found." });
 
-    locker = locker.purge(
-      locker.dataValues.user === username ? filters[role] : filters.public
-    );
+    locker = locker.purge(role, locker.dataValues.user === username);
 
     return res.status(200).send(locker);
   } catch (error) {
@@ -173,8 +157,8 @@ exports.claim_locker = async function (req, res) {
         .status(404)
         .send({ message: "Error: Locker not found to claim." });
 
-    if (locker.user)
-      if (locker.user === username)
+    if (locker.dataValues.user)
+      if (locker.dataValues.user === username)
         return res.status(200).send({
           message: "Redundant: You already own this locker.",
         });
@@ -187,9 +171,7 @@ exports.claim_locker = async function (req, res) {
     await locker.update({ user: username });
     await user.update({ locker: locker });
 
-    locker = locker.purge(
-      locker.dataValues.user === username ? filters[role] : filters.public
-    );
+    locker = locker.purge(role, locker.dataValues.user === username);
 
     return res.status(202).send(locker);
   } catch (error) {
@@ -238,7 +220,7 @@ exports.release_locker = async function (req, res) {
         .status(404)
         .send({ message: "Error: Locker to release not found." });
 
-    if (locker.user !== username)
+    if ((locker !== user, username))
       return res.status(400).send({
         message: "Authentication Error: You have not claimed this locker.",
       });

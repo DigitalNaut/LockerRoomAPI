@@ -10,9 +10,13 @@ const passwordRequirementsBlurb =
 
 exports.register = async function (req, res) {
   try {
-    let user = await users.get_user(req);
-    if (user)
-      return res.status(400).json({ message: "Error creating user: User data not available." });
+    let username = req.body.username;
+
+    let user = await users.get_user(username);
+    if (user && username === user.username)
+      return res
+        .status(409)
+        .json({ message: "Error creating user: User already exists." });
 
     if (!req.body.username.match(usernamePattern))
       return res.status(400).json({
@@ -28,7 +32,7 @@ exports.register = async function (req, res) {
       if (!newUser)
         return res.status(501).json({ message: "Error registering user." });
 
-      return res.status(201).send(newUser);
+      return res.status(201).send(newUser.purge(true));
     });
   } catch (error) {
     return res
@@ -45,28 +49,10 @@ exports.edit = async function (req, res) {
   }
 };
 
-exports.verify = async function (req, res) {
-  try {
-    let username = await users.get_user_from_token(
-      req.headers.token,
-      (user) => user.username,
-      () =>
-        res.status(403).send({
-          message:
-            "Operation failed: Couldn't verify the session from the given token.",
-        })
-    );
-    return username;
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Internal Error: Could not verify session: " + error });
-  }
-};
-
 exports.login = async function (req, res) {
   try {
     let username = req.body.username;
+
     let user = await users.get_user(username);
 
     if (!user) {
