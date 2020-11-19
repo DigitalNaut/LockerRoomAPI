@@ -86,9 +86,9 @@ exports.login = async function (req, res) {
 
 exports.logout = async function (req, res) {
   try {
-    let user = req.headers.username;
+    let username = req.headers.username;
 
-    await users.set_auth_token(user, null);
+    await users.set_auth_token(username, null);
 
     return res.status(200).json({
       message: "OK: Logged out successfully.",

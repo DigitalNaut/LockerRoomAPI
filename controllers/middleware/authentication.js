@@ -10,19 +10,24 @@ const authenticate = async (req, res, next) => {
     username = "";
     role = "";
 
+    if (!token)
+      return res.status(401).json({
+        message: "Authentication Error: Invalid session token.",
+      });
+
     return await users.get_user_from_token(
       token,
       async (user) => {
         if (!user.authToken) {
           await user.update({ authToken: null });
-          return res.status(403).json({ message: "Not logged in." });
+          return res.status(401).json({ message: "Not logged in." });
         }
 
         jwt.verify(
           user.authToken,
           process.env.JWT_SECRETKEY,
           (error, decoded) => {
-            if (error && isPublic) {
+            if (error) {
               console.log("An error ocurred during authentication: " + error);
               return res
                 .status(400)
@@ -37,7 +42,7 @@ const authenticate = async (req, res, next) => {
         return next();
       },
       (error) => {
-        return res.status(403).json({
+        return res.status(401).json({
           message: `Authentication Error: ${
             error ? error : "Protected: Not logged in."
           }`,
