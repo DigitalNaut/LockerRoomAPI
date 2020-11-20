@@ -4,7 +4,7 @@ const { users } = require("../users");
 const authenticate = async (req, res, next) => {
   try {
     let {
-      headers: { token, username, role },
+      headers: { token },
     } = req;
 
     username = "";
@@ -34,8 +34,8 @@ const authenticate = async (req, res, next) => {
                 .json({ message: "Authentication Error: Session expired." });
             }
 
-            req.headers.username = decoded.userUsername;
-            req.headers.role = decoded.userRole;
+            req.headers.username = decoded.username;
+            req.headers.role = decoded.role;
           }
         );
 

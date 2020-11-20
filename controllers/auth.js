@@ -52,6 +52,7 @@ exports.edit = async function (req, res) {
 exports.login = async function (req, res) {
   try {
     let username = req.body.username;
+    let role = req.body.role;
 
     let user = await users.get_user(username);
 
@@ -64,7 +65,7 @@ exports.login = async function (req, res) {
     }
 
     const token = jwt.sign(
-      { userUsername: user.username, userRole: user.role },
+      { username: user.username, role: user.role },
       process.env.JWT_SECRETKEY,
       {
         expiresIn: 36000,
@@ -76,6 +77,8 @@ exports.login = async function (req, res) {
     return res.status(200).json({
       message: "Authenticated successfully.",
       token,
+      role: user.role,
+      username: user.username
     });
   } catch (error) {
     return res
