@@ -17,7 +17,7 @@ exports.new_message = async function (req, res) {
       console.log("Bad request: Could not determine a valid recipient user.");
       return res.status(400).send({
         message:
-          "Unsuccessful: Creating a message requires a valid recipient user.",
+          "The message needs a valid recipient.",
       });
     }
 
