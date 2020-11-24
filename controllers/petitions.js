@@ -54,7 +54,7 @@ exports.get_all_petitions = async function (req, res) {
     let petitions = await models.Petition.findAll();
 
     if (!petitions.length)
-      return res.status(501).send({ message: "No petitions found." });
+      return res.status(501).json({ message: "No petitions found." });
 
     petitions = petitions.forEach((petition) =>
       petition.purge(role, petition.sender === username)
@@ -63,7 +63,7 @@ exports.get_all_petitions = async function (req, res) {
     return res.status(200).send(petitions);
   } catch (error) {
     console.log("Error fetching petitions:", error);
-    return res.status(500).send({ message: "Failed to fetch petitions." });
+    return res.status(500).json({ message: "Failed to fetch petitions." });
   }
 };
 
@@ -104,7 +104,7 @@ exports.get_petition = async function (req, res) {
     });
 
     if (!petition)
-      return res.status(404).send({ message: "Error: Petition not found." });
+      return res.status(404).json({ message: "Error: Petition not found." });
 
     if (!(petition === sender, user))
       return res.status(404).send({
@@ -117,7 +117,7 @@ exports.get_petition = async function (req, res) {
     return res.status(200).send(petition);
   } catch (error) {
     console.log("Error fetching petition: " + error);
-    return res.status(500).send({ message: "Error: Could not fetch petition" });
+    return res.status(500).json({ message: "Error: Could not fetch petition" });
   }
 };
 
@@ -190,7 +190,7 @@ exports.delete_petition = async function (req, res) {
 
     await petition.destroy();
 
-    return res.status(200).send({ message: "Petition removed." });
+    return res.status(200).json({ message: "Petition removed." });
   } catch (error) {
     console.log("Error deleting petition:" + error);
     return res

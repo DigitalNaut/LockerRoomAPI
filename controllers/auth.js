@@ -57,11 +57,11 @@ exports.login = async function (req, res) {
     let user = await users.get_user(username);
 
     if (!user) {
-      return res.status(401).json({ message: "The username is not correct." });
+      return res.status(400).json({ message: "The username is not correct." });
     }
 
     if (!user.validPassword(req.body.password)) {
-      return res.status(401).json({ message: "The password is not correct." });
+      return res.status(400).json({ message: "The password is not correct." });
     }
 
     const token = jwt.sign(
@@ -94,7 +94,7 @@ exports.logout = async function (req, res) {
     await users.set_auth_token(username, null);
 
     return res.status(200).json({
-      message: "OK: Logged out successfully.",
+      message: "Logged out successfully.",
     });
   } catch (error) {
     return res
@@ -110,7 +110,7 @@ exports.remove = async function (req, res) {
     await users.delete_user(req);
 
     if (user)
-      return res.status(200).json({ message: "OK: User account removed." });
+      return res.status(200).json({ message: "User account removed." });
     else
       return res
         .status(500)

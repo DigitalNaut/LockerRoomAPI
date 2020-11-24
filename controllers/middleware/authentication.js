@@ -30,7 +30,7 @@ const authenticate = async (req, res, next) => {
             if (error) {
               console.log("An error ocurred during authentication: " + error);
               return res
-                .status(400)
+                .status(401)
                 .json({ message: "Authentication Error: Session expired." });
             }
 

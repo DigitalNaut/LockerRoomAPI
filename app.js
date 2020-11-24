@@ -52,7 +52,7 @@ app.use(function (err, req, res, next) {
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
-  res.status(err.status || 500).send({ message: "App: 404 not found" });
+  res.status(err.status || 500).json({ message: "App: 404 not found" });
   //res.render('error');
 });
 

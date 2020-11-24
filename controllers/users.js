@@ -49,7 +49,7 @@ exports.show_all_users = async function (req, res) {
     let users = await getAllUsers();
 
     if (!users.length)
-      return res.status(501).send({ message: "No users found" });
+      return res.status(501).json({ message: "No users found" });
 
     users = users.map((user) => {
       user = user.purge(role, user.username === username);
@@ -85,7 +85,7 @@ exports.show_user = async function (req, res) {
     let user = await exports.get_user(username);
 
     if (!user)
-      return res.status(404).send({ message: "User not found: " + user });
+      return res.status(404).json({ message: "User not found: " + user });
 
     console.log("MY username: ", username, "The other: ", user.username);
 
@@ -232,7 +232,7 @@ exports.delete_user = async function (req, res) {
 
     return (
       (res &&
-        res.status(200).send({ message: "User removed: " + user.username })) ||
+        res.status(200).json({ message: "User removed: " + user.username })) ||
       null
     );
   } catch (error) {

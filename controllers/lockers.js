@@ -46,7 +46,7 @@ exports.flush_lockers = async function (req, res) {
     return res.status(201).send(lockers);
   } catch (error) {
     console.log("Error fetching lockers:", error);
-    return res.status(500).send({ message: "Failed to fetch lockers." });
+    return res.status(500).json({ message: "Failed to fetch lockers." });
   }
 };
 
@@ -60,7 +60,7 @@ exports.list_lockers = async function (req, res) {
     let lockers = await models.Locker.findAll();
 
     if (!lockers.length)
-      return res.status(501).send({ message: "No lockers found." });
+      return res.status(501).json({ message: "No lockers found." });
 
     lockers = lockers.map((locker) => {
       locker = locker.purge(role, locker.dataValues.user === username);
@@ -71,7 +71,7 @@ exports.list_lockers = async function (req, res) {
     return res.status(200).send(lockers);
   } catch (error) {
     console.log("Error fetching lockers:", error);
-    return res.status(500).send({ message: "Failed to fetch lockers." });
+    return res.status(500).json({ message: "Failed to fetch lockers." });
   }
 };
 
@@ -87,7 +87,7 @@ exports.show_user_lockers = async function (req, res) {
     });
 
     if (!lockers.length)
-      return res.status(501).send({ message: `No lockers found for ${user}.` });
+      return res.status(501).json({ message: `No lockers found for ${user}.` });
 
     lockers = lockers.map((locker) => locker.purge(role));
 
@@ -117,14 +117,14 @@ exports.show_locker = async function (req, res) {
     });
 
     if (!locker)
-      return res.status(404).send({ message: "Error: Locker not found." });
+      return res.status(404).json({ message: "Error: Locker not found." });
 
     locker = locker.purge(role, locker.dataValues.user === username);
 
     return res.status(200).send(locker);
   } catch (error) {
     console.log("Error fetching locker: " + error);
-    return res.status(500).send({ message: "Error: Could not fetch locker" });
+    return res.status(500).json({ message: "Error: Could not fetch locker" });
   }
 };
 
@@ -191,7 +191,7 @@ exports.purge_lockers = async function (req, res) {
 
     delete_lockers(lockers);
 
-    return res.status(200).json({ message: "OK: Lockers deleted." });
+    return res.status(200).json({ message: "Lockers deleted." });
   } catch (error) {
     console.log("Error deleting lockers:" + error);
     return res
@@ -234,7 +234,7 @@ exports.release_locker = async function (req, res) {
     await locker.update({ user: null });
     await user.update({ locker: null });
 
-    return res.status(200).send({ message: "OK: Locker released." });
+    return res.status(200).json({ message: "Locker released." });
   } catch (error) {
     console.log("Error deleting locker:" + error);
     return res

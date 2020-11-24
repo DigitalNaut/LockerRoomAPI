@@ -16,8 +16,7 @@ exports.new_message = async function (req, res) {
     if (!recipient) {
       console.log("Bad request: Could not determine a valid recipient user.");
       return res.status(400).send({
-        message:
-          "The message needs a valid recipient.",
+        message: "The message needs a valid recipient.",
       });
     }
 
@@ -43,7 +42,7 @@ exports.new_message = async function (req, res) {
     return res.status(201).send(message);
   } catch (error) {
     console.log("Error: Could not create message: " + error);
-    return res.status(503).send({ message: "Could not create new message." });
+    return res.status(503).json({ message: "Could not create new message." });
   }
 };
 
@@ -57,7 +56,7 @@ exports.get_all_messages = async function (req, res) {
     let messages = await models.Message.findAll();
 
     if (!messages.length)
-      return res.status(501).send({ message: "No messages found." });
+      return res.status(501).json({ message: "No messages found." });
 
     messages = messages.map((message) =>
       message.purge(
@@ -79,6 +78,11 @@ exports.get_user_messages = async function (req, res) {
   try {
     let username = req.headers.username;
     let role = req.headers.role;
+
+    if (!username) {
+      console.log("Error: Username is null");
+      return res.status(401).json({ message: "Authenticatio error: Invalid session." });
+    }
 
     let sentMessages = await models.Message.findAll({
       where: {
@@ -185,7 +189,7 @@ exports.get_message = async function (req, res) {
     });
 
     if (!message)
-      return res.status(404).send({ message: "Error: Message not found." });
+      return res.status(404).json({ message: "Error: Message not found." });
 
     if (
       message.dataValues.sender !== username &&
@@ -275,7 +279,7 @@ exports.delete_message = async function (req, res) {
 
     await message.destroy();
 
-    return res.status(200).json({ message: "OK: Message removed." });
+    return res.status(200).json({ message: "Message removed." });
   } catch (error) {
     console.log("Error deleting message:" + error);
     return res
