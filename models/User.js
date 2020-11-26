@@ -64,6 +64,7 @@ const UserModel = (sequelize, DataTypes) => {
     user.hasMany(models.Locker, { foreignKey: "user", as: "lockers" });
     user.hasMany(models.Message, { foreignKey: "sender", as: "messages" });
     user.hasMany(models.Petition, { foreignKey: "sender", as: "petitions" });
+    user.hasMany(models.Event, { foreignKey: "creator", as: "events" });
   };
 
   user.prototype.validPassword = function (password) {
