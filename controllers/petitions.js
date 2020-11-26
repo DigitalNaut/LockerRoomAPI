@@ -7,32 +7,27 @@ exports.new_petition = async function (req, res) {
     let username = req.headers.username;
     let role = req.headers.role;
 
-    let petition = await models.Petition.findOne({
+    let newPetition = await models.Petition.findCreateFind({
       where: {
+        sender: username,
+        type: req.body.type,
+        code: req.body.code,
+      },
+      defaults: {
         sender: username,
         type: req.body.type,
         code: req.body.code,
       },
     });
 
-    if (petition)
+    if (!created)
       return res
         .status(400)
         .send({ message: "Error: Petition already exists." });
 
-    petition = await models.Petition.build({
-      sender: username,
-      type: req.body.type,
-      code: req.body.code,
-      enclosure: req.body.enclosure,
-      result: "pending",
-    });
+    newPetition = newPetition.purge(role, newPetition.sender === username);
 
-    await petition.save();
-
-    petition = petition.purge(role, petition.sender === username);
-
-    return res.status(201).send(petition);
+    return res.status(201).send(newPetition);
   } catch (error) {
     console.log("Error fetching petition:", error);
     return (

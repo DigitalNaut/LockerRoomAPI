@@ -20,7 +20,7 @@ exports.new_message = async function (req, res) {
       });
     }
 
-    let message = models.Message.build({
+    let newMessage = await models.Message.create({
       sender: sender,
       recipient: recipient.username,
       subject: req.body.subject,
@@ -28,18 +28,16 @@ exports.new_message = async function (req, res) {
       footer: req.body.footer,
     });
 
-    if (!message) {
+    if (!newMessage) {
       //console.log("Building a message returned a null object: ", message);
       return res
         .status(503)
         .send({ message: "Internal Error: Failed to build new message." });
     }
 
-    await message.save();
+    newMessage = newMessage.purge(role, newMessage.sender === sender);
 
-    message = message.purge(role, message.sender === sender);
-
-    return res.status(201).send(message);
+    return res.status(201).send(newMessage);
   } catch (error) {
     console.log("Error: Could not create message: " + error);
     return res.status(503).json({ message: "Could not create new message." });
@@ -81,7 +79,9 @@ exports.get_user_messages = async function (req, res) {
 
     if (!username) {
       console.log("Error: Username is null");
-      return res.status(401).json({ message: "Authenticatio error: Invalid session." });
+      return res
+        .status(401)
+        .json({ message: "Authenticatio error: Invalid session." });
     }
 
     let sentMessages = await models.Message.findAll({

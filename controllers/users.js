@@ -1,4 +1,5 @@
 const models = require("../models");
+const { Op } = require("sequelize");
 
 // CREATE
 exports.new_user = async function (req) {
@@ -17,22 +18,23 @@ exports.new_user = async function (req) {
       },
     } = req;
 
-    let = user = await models.User.build({
-      username: username,
-      role: "user",
-      email: email,
-      password: password,
-      firstName: firstName,
-      lastName: lastName,
-      DOB: DOB,
-      address: address,
-      phone: phone,
-      picture: picture,
+    return await models.User.findCreateFind({
+      where: {
+        [Op.or]: [{ username: username }, { email: email }],
+      },
+      defaults: {
+        username: username,
+        role: "user",
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+        DOB: DOB,
+        address: address,
+        phone: phone,
+        picture: picture,
+      },
     });
-
-    await user.save();
-
-    return user;
   } catch (error) {
     console.log("Error saving user to database:" + error);
     return null;

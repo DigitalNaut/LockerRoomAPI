@@ -18,6 +18,7 @@ module.exports = {
       },
       sender: {
         type: Sequelize.STRING,
+        allowNull: false,
         references: {
           model: "Users",
           key: "username",
@@ -26,6 +27,7 @@ module.exports = {
       },
       recipient: {
         type: Sequelize.STRING,
+        allowNull: false,
         references: {
           model: "Users",
           key: "username",

@@ -10,17 +10,9 @@ const passwordRequirementsBlurb =
 
 exports.register = async function (req, res) {
   try {
-    let username = req.body.username;
-
-    let user = await users.get_user(username);
-    if (user && username === user.username)
-      return res
-        .status(409)
-        .json({ message: "Error creating user: User already exists." });
-
     if (!req.body.username.match(usernamePattern))
       return res.status(400).json({
-        message: `Password is not valid: ${usernameRequirementsBlurb}`,
+        message: `Username is not valid: ${usernameRequirementsBlurb}`,
       });
 
     if (!req.body.password.match(passwordPattern))
@@ -28,12 +20,16 @@ exports.register = async function (req, res) {
         message: `Password is not valid: ${passwordRequirementsBlurb}`,
       });
 
-    return users.new_user(req).then((newUser) => {
-      if (!newUser)
-        return res.status(501).json({ message: "Error registering user." });
+    let [newUser, created] = await users.new_user(req);
 
-      return res.status(201).send(newUser.purge(true));
-    });
+    if (!created)
+      return res
+        .status(400)
+        .json({
+          message: "Error registering user: credentials may already be in use.",
+        });
+
+    return res.status(201).send(newUser.purge(true));
   } catch (error) {
     return res
       .status(500)
@@ -78,7 +74,7 @@ exports.login = async function (req, res) {
       message: "Authenticated successfully.",
       token,
       role: user.role,
-      username: user.username
+      username: user.username,
     });
   } catch (error) {
     return res
@@ -109,8 +105,7 @@ exports.remove = async function (req, res) {
 
     await users.delete_user(req);
 
-    if (user)
-      return res.status(200).json({ message: "User account removed." });
+    if (user) return res.status(200).json({ message: "User account removed." });
     else
       return res
         .status(500)
