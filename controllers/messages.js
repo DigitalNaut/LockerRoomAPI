@@ -100,7 +100,7 @@ exports.get_user_messages = async function (req, res) {
 
     if (!messages.length)
       return res
-        .status(501)
+        .status(200)
         .send({ message: `No messages found for ${username}.` });
 
     messages = messages.map((message) =>
@@ -162,7 +162,7 @@ exports.get_received_messages = async function (req, res) {
     if (!messages.length)
       return res
         .status(501)
-        .send({ message: `No messages found for ${username} as recipient.` });
+        .send({ message: `No messages found for recipient ${username}.` });
 
     messages = messages.map((message) =>
       message.purge(role, message.recipient === username)

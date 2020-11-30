@@ -7,3 +7,10 @@ exports.purge = (dataset, properties) => {
 
   return dataset;
 };
+
+exports.protoPurger = (role, personal, privateFilter, publicFilter) => {
+  return purger.purge(
+    this.dataValues,
+    (personal ? privateFilter[role] : publicFilter) || publicFilter
+  );
+};

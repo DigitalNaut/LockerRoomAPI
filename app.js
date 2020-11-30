@@ -38,6 +38,7 @@ app.use("/users", routes.users);
 app.use("/api/lockers", routes.lockers);
 app.use("/api/messages", routes.messages);
 app.use("/api/petitions", routes.petitions);
+app.use("/api/events", routes.events);
 app.use("/auth/", routes.auth);
 
 // catch 404 and forward to error handler

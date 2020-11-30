@@ -23,7 +23,7 @@ exports.new_petition = async function (req, res) {
     if (!created)
       return res
         .status(400)
-        .send({ message: "Error: Petition already exists." });
+        .json({ message: "Error: Petition already exists." });
 
     newPetition = newPetition.purge(role, newPetition.sender === username);
 
@@ -34,7 +34,7 @@ exports.new_petition = async function (req, res) {
       (res &&
         res
           .status(500)
-          .send({ message: "Internal Error: Failed to fetch petition." })) ||
+          .json({ message: "Internal Error: Failed to fetch petition." })) ||
       null
     );
   }
@@ -78,12 +78,12 @@ exports.get_user_petitions = async function (req, res) {
     else
       return res
         .status(501)
-        .send({ message: `No petitions found for ${username}.` });
+        .json({ message: `No petitions found for ${username}.` });
   } catch (error) {
     console.log("Error fetching petitions:", error);
     return res
       .status(500)
-      .send({ message: "Internal Error: Fetching user petitions failed." });
+      .json({ message: "Internal Error: Fetching user petitions failed." });
   }
 };
 
@@ -135,7 +135,7 @@ exports.edit_petition = async function (req, res) {
     if (!petition)
       return res
         .status(404)
-        .send({ message: "Error: Petition not found to edit." });
+        .json({ message: "Error: Petition not found to edit." });
 
     if (petition.sender !== username)
       return res.status(404).send({
@@ -175,7 +175,7 @@ exports.delete_petition = async function (req, res) {
     if (!petition)
       return res
         .status(404)
-        .send({ message: "Error: Petition to delete not found." });
+        .json({ message: "Error: Petition to delete not found." });
 
     if (petition.sender !== user)
       return res.status(400).send({
@@ -190,6 +190,6 @@ exports.delete_petition = async function (req, res) {
     console.log("Error deleting petition:" + error);
     return res
       .status(500)
-      .send({ message: "Error: Could not remove petition." });
+      .json({ message: "Error: Could not remove petition." });
   }
 };

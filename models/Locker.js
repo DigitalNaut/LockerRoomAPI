@@ -26,7 +26,7 @@ const LockerModule = (sequelize, DataTypes) => {
   };
 
   locker.prototype.purge = function (role, personal = false) {
-    purger.purge(
+    return purger.purge(
       this.dataValues,
       (personal ? filters.locker[role] : filters.locker.public) ||
         filters.locker.public

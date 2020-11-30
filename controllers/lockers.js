@@ -96,7 +96,7 @@ exports.show_user_lockers = async function (req, res) {
     console.log("Error fetching lockers:", error);
     return res
       .status(500)
-      .send({ message: "Internal Error: Fetching user lockers failed." });
+      .json({ message: "Internal Error: Fetching user lockers failed." });
   }
 };
 
@@ -155,7 +155,7 @@ exports.claim_locker = async function (req, res) {
     if (!locker)
       return res
         .status(404)
-        .send({ message: "Error: Locker not found to claim." });
+        .json({ message: "Error: Locker not found to claim." });
 
     if (locker.dataValues.user)
       if (locker.dataValues.user === username)
@@ -196,7 +196,7 @@ exports.purge_lockers = async function (req, res) {
     console.log("Error deleting lockers:" + error);
     return res
       .status(500)
-      .send({ message: "Error: Could not remove lockers." });
+      .json({ message: "Error: Could not remove lockers." });
   }
 };
 
@@ -218,7 +218,7 @@ exports.release_locker = async function (req, res) {
     if (!locker)
       return res
         .status(404)
-        .send({ message: "Error: Locker to release not found." });
+        .json({ message: "Error: Locker to release not found." });
 
     if ((locker !== user, username))
       return res.status(400).send({
@@ -239,6 +239,6 @@ exports.release_locker = async function (req, res) {
     console.log("Error deleting locker:" + error);
     return res
       .status(500)
-      .send({ message: "Error: Could not release locker." });
+      .json({ message: "Error: Could not release locker." });
   }
 };

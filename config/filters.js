@@ -12,6 +12,19 @@ exports.filters = (() => {
       public: ["id", "sender", "recipient"],
     },
 
+    event: {
+      admin: [
+        "createdAt",
+        "updatedAt",
+        "creator",
+        "type",
+        "userFilter",
+        "template",
+      ],
+      user: ["about", "mandatory", "expDate"],
+      public: ["title", "code"],
+    },
+
     petition: {
       admin: ["updatedAt", "createdAt"],
       user: ["enclosure", "result", "resultMessage"],

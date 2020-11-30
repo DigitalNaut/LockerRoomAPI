@@ -23,6 +23,7 @@
     "nodemon": "^2.0.6",
     "pug": "2.0.0-beta11",
     "sequelize": "^6.3.5",
-    "sequelize-cli": "^6.2.0"
+    "sequelize-cli": "^6.2.0",
+    "sequelize-json": "^2.1.2"
   }
 }

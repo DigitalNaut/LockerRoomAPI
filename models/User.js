@@ -11,6 +11,8 @@ const UserModel = (sequelize, DataTypes) => {
       username: {
         primaryKey: true,
         type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
       },
       createdAt: { type: DataTypes.DATE },
       updatedAt: { type: DataTypes.DATE },

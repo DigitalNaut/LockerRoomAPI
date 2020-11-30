@@ -53,7 +53,7 @@ const authenticate = async (req, res, next) => {
     console.log("Failed to authenticate: ", error);
     return res
       .status(500)
-      .send({ message: "Internal Error: Authentication failed." });
+      .json({ message: "Internal Error: Authentication failed." });
   }
 };
 
