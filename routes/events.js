@@ -3,13 +3,39 @@ var router = express.Router();
 
 const events = require("../controllers/events");
 const authenticate = require("../controllers/middleware/authentication");
+const admin = require("../controllers/middleware/admin");
 
-router.post("/new", authenticate, events.new_event);
-router.get("/user", authenticate, events.get_user_events);
-router.get("/public", authenticate, events.get_public_events);
-// router.get("/my", authenticate, events.get_events_by_user);
-// router.get("/:title/:code", authenticate, events.get_event);
-// router.put("/:title/:code/edit", authenticate, events.edit_event);
-// router.delete("/:title/remove", authenticate, events.delete_event);
+// CREATE
+router.post("/new", authenticate, admin, events.new_event);
+
+// READ
+router.get("/all", authenticate, events.get_all_events);
+router.get("/type/:type", authenticate, events.get_events_by_type);
+router.get("/title/:title", authenticate, events.get_events_by_title);
+router.get(
+  "/type/:type/mandatory/:mandatory",
+  authenticate,
+  events.get_events_by_mandatory
+);
+router.get("/title/:title/code/:code", authenticate, events.get_event);
+router.get("/by/:creator", authenticate, events.get_events_by_creator);
+
+// POSSIBLE NEW ONES
+// router.get(
+//   "/current/type/:value",
+//   authenticate,
+//   events.get_current_events_by_type
+// );
+// router.get(
+//   "/current/type/:type/mandatory/:value",
+//   authenticate,
+//   events.get_current_events_by_mandatory
+// );
+
+// UPDATE
+router.put("/title/:title/code/:code", authenticate, events.edit_event);
+
+// DELETE
+router.delete("/title/:title/code/:code", authenticate, events.delete_event);
 
 module.exports = router;

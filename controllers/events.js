@@ -9,22 +9,14 @@ function isValidDate(value) {
   );
 }
 
-// CREATE
-// get_public_events;
-// get_events_by_user;
-// get_event;
-// edit_event;
-// delete_event;
-
 exports.new_event = async function (req, res) {
   try {
-    let username = req.headers.username;
-    let role = req.headers.role;
+    let { username } = req.headers;
+    let { role } = req.headers;
 
     if (role !== "admin") return res.status();
 
     let {
-      body,
       body: {
         title,
         type,
@@ -39,7 +31,9 @@ exports.new_event = async function (req, res) {
 
     let validDate = isValidDate(expDate);
     if (!validDate && expDate !== undefined)
-      return res.status(400).json({ message: "Error: Date provided is not valid." });
+      return res
+        .status(400)
+        .json({ message: "Error: Date provided is not valid." });
 
     mandatory = mandatory ? true : false;
 
@@ -60,18 +54,17 @@ exports.new_event = async function (req, res) {
         creator: username,
         title,
         type,
-        code,
+        code: parseInt(code),
       },
       default: {
         creator: username,
         title,
         about,
         type,
-        code,
+        code: parseInt(code),
         userFilter,
-        mandatory,
-        expDate,
-        expDate,
+        mandatory: Boolean(mandatory),
+        expDate: new Date(expDate),
         template,
       },
     });
@@ -85,6 +78,8 @@ exports.new_event = async function (req, res) {
     newEvent.template = template;
     newEvent.mandatory = mandatory;
     await newEvent.save();
+
+    newEvent = newEvent.purge(role, true);
 
     return res.status(201).send(newEvent);
   } catch (error) {
@@ -103,90 +98,144 @@ exports.new_event = async function (req, res) {
 
 const count = async (type) =>
   await models.Event.count({
-    where: { type, code: "*" },
+    where: { type },
     distinct: true,
     col: "Event.code",
   }).then((count) => count);
 
 exports.get_all_events = async function (req, res) {
   try {
-    let { headers: role } = req;
+    let { role, username } = req.headers;
 
     let events = await models.Event.findAll();
 
     if (!events.length)
-      return res.status(501).json({ message: "No events found." });
+      return res.status(404).json({ message: "No events found." });
 
-    events = events.forEach((event) =>
-      event.purge(role, event.sender === username)
+    events = events.map((event) =>
+      event.purge(role, event.creator === username)
     );
+
+    if (!events || !events.length)
+      return res.status(401).json({ message: "No events available." });
 
     return res.status(200).send(events);
   } catch (error) {
-    console.log("Error fetching events:", error);
-    return res.status(500).json({ message: "Failed to fetch events." });
+    console.log("Error fetching all events:", error);
+    return res.status(500).json({ message: "Failed to fetch all events." });
   }
 };
 
-async function getEventsByType(type, res) {
+exports.get_events_by_type = async function (req, res) {
   try {
+    let { type, role } = req.params;
     let events = await models.Event.findAll({
       where: {
         type,
       },
     });
 
-    events = events.forEach((event) =>
-      event.purge(role, event.sender === username)
-    );
+    events = events.map((event) => event.purge(role, true));
 
     if (events.length) return res.status(200).send(events);
     else
       return res
-        .status(501)
-        .json({ message: `No ${type} events found for ${username}.` });
+        .status(404)
+        .json({ message: `No events of type '${type}' found.` });
   } catch (error) {
-    console.log(`Error fetching ${type} events:`, error);
+    console.log(`Error fetching events by type:`, error);
     return res
       .status(500)
-      .json({ message: `Internal Error: Fetching ${type} events failed.` });
+      .json({ message: `Internal Error: Fetching events by type failed.` });
   }
-}
-
-exports.get_user_events = async function (req, res) {
-  return getEventsByType("user", res);
 };
 
-exports.get_public_events = async function (req, res) {
-  return getEventsByType("public", res);
+exports.get_events_by_title = async function (req, res) {
+  try {
+    let { title } = req.params;
+    let { role } = req.headers;
+
+    if (!title)
+      return res
+        .status(400)
+        .json({ message: `Invalid title for query '${title}'.` });
+
+    let events = await models.Event.findAll({
+      where: {
+        title,
+      },
+    });
+
+    events = events.map((event) => event.purge(role, true));
+
+    if (events.length) return res.status(200).send(events);
+    else
+      return res
+        .status(404)
+        .json({ message: `No events found titled '${title}'` });
+  } catch (error) {
+    console.log(`Error fetching events by title:`, error);
+    return res
+      .status(500)
+      .json({ message: `Internal Error: Fetching events by title failed.` });
+  }
+};
+
+exports.get_events_by_mandatory = async function (req, res) {
+  try {
+    let { role } = req.headers;
+    let { mandatory, type } = req.params;
+
+    let errMsg;
+    if (!mandatory) errMsg = "A value for the query 'mandatory' is required";
+    if (!type)
+      errMsg = "A type of event for querying by 'mandatory' is required";
+    if (errMsg) return res.status(404).json({ message: `${errMsg}` });
+
+    let events = await models.Event.findAll({
+      where: {
+        mandatory: Boolean(mandatory),
+        type,
+      },
+    });
+
+    events = events.map((event) => event.purge(role, true));
+
+    if (events.length) return res.status(200).send(events);
+    else
+      return res.status(404).json({
+        message: `No mandatory events found.`,
+      });
+  } catch (error) {
+    console.log(`Error fetching events by mandatory field:`, error);
+    return res.status(500).json({
+      message: `Internal Error: Fetching events by mandatory has failed.`,
+    });
+  }
 };
 
 exports.get_event = async function (req, res) {
   try {
-    let {
-      headers: { role },
-    } = req;
-    let {
-      body: { title, code },
-    } = req;
+    let { role } = req.headers;
+    let { title, code } = req.params;
+
+    let errMsg;
+    if (!title) errMsg = "A title is required for fetching an event";
+    if (!code)
+      errMsg = "A code for the event is required for fetching an event";
+    if (errMsg) return res.status(404).json({ message: `${errMsg}` });
 
     let event = await models.Event.findOne({
       where: {
-        title: title,
-        code: code,
+        title,
+        code: parseInt(code),
       },
     });
 
     if (!event)
       return res.status(404).json({ message: "Error: Event not found." });
 
-    if (!event.userFilter.contains(role))
-      return res.status(404).send({
-        message:
-          "Authentication Error: You do not have permissoin to see this event.",
-      });
-
-    event = event.purge(role, event.sender === username);
+    event = event.purge(role, true);
 
     return res.status(200).send(event);
   } catch (error) {
@@ -195,59 +244,116 @@ exports.get_event = async function (req, res) {
   }
 };
 
+exports.get_events_by_creator = async function (req, res) {
+  try {
+    let { creator } = req.params;
+    let { role } = req.headers;
+
+    let events = await models.Event.findAll({
+      where: {
+        creator,
+      },
+    });
+
+    events = events.map((event) => event.purge(role, true));
+
+    if (events.length) return res.status(200).send(events);
+    else
+      return res.status(404).json({
+        message: `No events found by ${creator}.`,
+      });
+  } catch (error) {
+    console.log(`Error fetching events by creator:`, error);
+    return res.status(500).json({
+      message: `Internal Error: Fetching events by creator has failed.`,
+    });
+  }
+};
+
 // UPDATE
 
 exports.edit_event = async function (req, res) {
   try {
-    let username = req.headers.username;
-    let role = req.headers.role;
+    let { username, role } = req.headers;
+    let { title: eventTitle, code: eventCode } = req.params;
 
-    console.log("Sender is: " + username);
+    let {
+      title,
+      about,
+      type,
+      code,
+      userFilter,
+      mandatory,
+      expDate,
+      template,
+    } = req.body;
+
+    let errMsg;
+    if (!eventTitle) errMsg = "A title is required for editing an event";
+    if (isNaN(eventCode))
+      errMsg = "A code for the event is required for editing an event";
+    if (errMsg) return res.status(404).json({ message: `${errMsg}` });
 
     let event = await models.Event.findOne({
       where: {
-        sender: username,
-        code: req.params.code,
+        title: eventTitle,
+        code: eventCode,
       },
     });
 
     if (!event)
-      return res
-        .status(404)
-        .json({ message: "Error: Event not found to edit." });
-
-    if (event.sender !== username)
-      return res.status(404).send({
-        message:
-          "Authentication Error: You do not have permission to edit this event.",
+      return res.status(404).json({
+        message: `Error: Event titled '${eventTitle}' code ${eventCode} not found to edit.`,
       });
 
-    let newProperties = {};
-    if (req.body.enclosure) newProperties.enclosure = req.body.enclosure;
+    if (event.creator !== username)
+      return res.status(404).send({
+        message:
+          "Permissions Error: You do not have permission to edit this event because you did not create it.",
+      });
+
+    let newProperties = {
+      title: title ? title : event.title,
+      about: about ? about : event.about,
+      type: type ? type : event.about,
+      code: !isNaN(code) ? parseInt(code) : event.code,
+      userFilter: userFilter ? userFilter : event.userFilter,
+      mandatory: Boolean(mandatory),
+      expDate: expDate ? new Date(expDate) : event.expDate,
+      template: template ? template : event.template,
+    };
 
     await event.update(newProperties);
 
-    event = event.purge(role, event.sender === username);
+    event = event.purge(role, true);
 
     return res.status(202).send(event);
   } catch (error) {
-    console.log("An error ocurred fetching a event:", error);
+    console.log("Error updating an event:", error);
     return res.status(500).send({
       code: error.code,
-      message: "Internal Error: Fetching event failed.",
+      message: "Internal Error: Updating event failed.",
     });
   }
 };
 
 // DELETE
 
-exports.delete_delete = async function (req, res) {
+exports.delete_event = async function (req, res) {
   try {
-    let user = req.headers.username;
+    let { username } = req.headers;
+    let { title, code } = req.params;
+
+    let errMsg;
+    if (!title) errMsg = "A title is required for deleting an event";
+    if (isNaN(code))
+      errMsg = "A code for the event is required for deleting an event";
+    if (errMsg) return res.status(404).json({ message: `${errMsg}` });
 
     let event = await models.Event.findOne({
       where: {
-        id: parseInt(req.params.id),
+        title,
+        code: parseInt(code),
       },
     });
 
@@ -256,15 +362,15 @@ exports.delete_delete = async function (req, res) {
         .status(404)
         .json({ message: "Error: Event to delete not found." });
 
-    if (event.sender !== user)
-      return res.status(400).send({
+    if (event.creator !== username)
+      return res.status(401).send({
         message:
           "Authentication Error: You do not have permission to delete this event.",
       });
 
     await event.destroy();
 
-    return res.status(200).json({ message: "Event removed." });
+    return res.status(200).json({ message: "Event removed successfully." });
   } catch (error) {
     console.log("Error deleting event:" + error);
     return res.status(500).json({ message: "Error: Could not remove event." });

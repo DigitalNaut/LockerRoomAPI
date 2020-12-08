@@ -2,6 +2,7 @@
 
 const purger = require("../controllers/purger");
 const { filters } = require("../config/filters");
+const JsonField = require("sequelize-json");
 
 const PetitionModel = (sequelize, DataTypes) => {
   let petition = sequelize.define("Petition", {
@@ -13,10 +14,12 @@ const PetitionModel = (sequelize, DataTypes) => {
     },
     createdAt: { type: DataTypes.DATE },
     updatedAt: { type: DataTypes.DATE },
-    sender: { type: DataTypes.STRING },
-    type: { type: DataTypes.STRING },
-    code: { type: DataTypes.INTEGER },
-    enclosure: { type: DataTypes.STRING },
+    sender: { type: DataTypes.STRING, allowNull: false },
+    event: { type: DataTypes.INTEGER, allowNull: false },
+    enclosure: {
+      type: JsonField(sequelize, "Petition", "enclosure"),
+      defaultValue: {},
+    },
     result: { type: DataTypes.STRING, defaultValue: "pending" },
     resultMessage: { type: DataTypes.STRING, allowNull: true },
   });
@@ -24,6 +27,10 @@ const PetitionModel = (sequelize, DataTypes) => {
   petition.associate = function (models) {
     petition.belongsTo(models.User, {
       foreignKey: "sender",
+      allowNull: false,
+    });
+    petition.belongsTo(models.Event, {
+      foreignKey: "event",
       allowNull: false,
     });
   };

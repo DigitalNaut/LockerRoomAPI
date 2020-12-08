@@ -6,7 +6,7 @@ module.exports = {
       id: {
         primaryKey: true,
         type: Sequelize.INTEGER,
-        autoIncrement: true
+        autoIncrement: true,
       },
       createdAt: {
         allowNull: false,
@@ -25,13 +25,14 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
-      type: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      code: {
+      event: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        references: {
+          model: "Events",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
       enclosure: {
         allowNull: false,

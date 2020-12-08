@@ -6,10 +6,16 @@ const JsonField = require("sequelize-json");
 
 const EventModel = (sequelize, DataTypes) => {
   let event = sequelize.define("Event", {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
     createdAt: { type: DataTypes.DATE, allowNull: false },
     updatedAt: { type: DataTypes.DATE, allowNull: false },
-    creator: DataTypes.STRING,
-    title: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
+    creator: { type: DataTypes.STRING, allowNull: false },
+    title: { type: DataTypes.STRING, allowNull: false },
     about: {
       type: JsonField(sequelize, "Event", "about"),
       defaultValue: {},
@@ -42,13 +48,14 @@ const EventModel = (sequelize, DataTypes) => {
       foreignKey: "creator",
       allowNull: false,
     });
+    event.hasMany(models.Petition, { foreignKey: "event", as: "petitions" });
   };
 
-  event.prototype.purge = function (role, personal = false) {
+  event.prototype.purge = function (role, roleFirstThenPublic = false) {
     return purger.purge(
       this.dataValues,
-      (personal ? filters.message[role] : filters.message.public) ||
-        filters.message.public
+      (roleFirstThenPublic ? filters.event[role] : filters.event.public) ||
+        filters.event.public
     );
   };
 

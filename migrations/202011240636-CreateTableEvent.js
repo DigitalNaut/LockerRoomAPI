@@ -11,6 +11,12 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      id: {
+        primaryKey: true,
+        autoIncrement: true,
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       creator: {
         allowNull: true,
         type: Sequelize.STRING,
@@ -23,7 +29,6 @@ module.exports = {
       title: {
         allowNull: false,
         type: Sequelize.STRING(100),
-        primaryKey: true,
       },
       about: {
         allowNull: true,
